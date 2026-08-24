@@ -43,6 +43,8 @@ model Candidate {
   verification_status String      @default("PENDING")
 
   assessment          Assessment?
+
+  @@index([college_id])
 }
 
 model Assessment {
@@ -72,6 +74,8 @@ model Assessment {
   assigned_set     Int       @default(1)
 
   answers          CandidateAnswer[]
+
+  @@index([position])
 }
 
 model Question {
@@ -91,6 +95,8 @@ model Question {
   status         String   @default("ACTIVE")
   set_number     Int      @default(1)
   answers        CandidateAnswer[]
+
+  @@index([position, status, type, set_number])
 }
 
 model CandidateAnswer {
