@@ -823,4 +823,91 @@ router.delete('/admin/candidates/:id', async (req: Request, res: Response) => {
   }
 });
 
+// ===============================
+// POSITIONS ENDPOINTS
+// ===============================
+
+// Get all positions
+router.get('/positions', async (req: Request, res: Response) => {
+  try {
+    const positions = await prisma.position.findMany({
+      where: { status: 'ACTIVE' },
+      orderBy: [
+        { department_type: 'asc' },
+        { position_name: 'asc' }
+      ]
+    });
+    res.json(positions);
+  } catch (error) {
+    console.error('Error fetching positions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin - Get all positions (including inactive)
+router.get('/admin/positions', async (req: Request, res: Response) => {
+  try {
+    const positions = await prisma.position.findMany({
+      orderBy: [
+        { department_type: 'asc' },
+        { position_name: 'asc' }
+      ]
+    });
+    res.json(positions);
+  } catch (error) {
+    console.error('Error fetching admin positions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin - Create a position
+router.post('/admin/positions', async (req: Request, res: Response) => {
+  try {
+    const { position_name, department_type, status } = req.body;
+    if (!position_name || !department_type) {
+      return res.status(400).json({ error: 'Position name and department type are required' });
+    }
+    const newPosition = await prisma.position.create({
+      data: { position_name, department_type, status: status || 'INACTIVE' }
+    });
+    res.json(newPosition);
+  } catch (error: any) {
+    console.error('Error creating position:', error);
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Position already exists' });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin - Update a position
+router.put('/admin/positions/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { position_name, department_type, status } = req.body;
+    const updated = await prisma.position.update({
+      where: { id: Number(id) },
+      data: { position_name, department_type, status }
+    });
+    res.json(updated);
+  } catch (error) {
+    console.error('Error updating position:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin - Delete a position
+router.delete('/admin/positions/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.position.delete({
+      where: { id: Number(id) }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting position:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

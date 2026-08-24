@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styles from './Admin.module.css';
 import logo from '../../assets/logo_new.jpg';
-import { LayoutDashboard, Building2, Users } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, Briefcase } from 'lucide-react';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -41,6 +41,13 @@ export default function AdminLayout() {
           >
             <Users size={20} />
             <span>All Candidates</span>
+          </Link>
+          <Link 
+            to="/admin/positions" 
+            className={`${styles.navItem} ${isActive('/admin/positions') ? styles.active : ''}`}
+          >
+            <Briefcase size={20} />
+            <span>Positions</span>
           </Link>
         </nav>
       </aside>

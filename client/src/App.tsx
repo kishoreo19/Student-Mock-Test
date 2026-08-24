@@ -7,6 +7,7 @@ import DashboardOverview from './pages/admin/DashboardOverview';
 import CollegesList from './pages/admin/CollegesList';
 import CollegeDetails from './pages/admin/CollegeDetails';
 import GlobalCandidates from './pages/admin/GlobalCandidates';
+import PositionsList from './pages/admin/PositionsList';
 import './index.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="colleges" element={<CollegesList />} />
           <Route path="colleges/:collegeId" element={<CollegeDetails />} />
           <Route path="candidates" element={<GlobalCandidates />} />
+          <Route path="positions" element={<PositionsList />} />
         </Route>
       </Routes>
     </BrowserRouter>

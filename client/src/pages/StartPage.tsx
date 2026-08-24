@@ -2,7 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './StartPage.module.css';
-import { IT_DEPARTMENTS, NON_IT_DEPARTMENTS, IT_ROLES, NON_IT_ROLES, DEGREES } from '../data';
+import { IT_DEPARTMENTS, NON_IT_DEPARTMENTS, DEGREES } from '../data';
 import logo from '../assets/logo_new.jpg';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -15,12 +15,12 @@ export default function StartPage() {
     phone: '',
     degree: '',
     department: '',
+    otherDepartment: '',
     position: ''
   });
   
   const [colleges, setColleges] = useState<any[]>([]);
-  
-
+  const [positions, setPositions] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -34,7 +34,18 @@ export default function StartPage() {
         console.error('Failed to fetch colleges:', err);
       }
     };
+    
+    const fetchPositions = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/positions`);
+        setPositions(response.data);
+      } catch (err) {
+        console.error('Failed to fetch positions:', err);
+      }
+    };
+    
     fetchColleges();
+    fetchPositions();
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -50,6 +61,9 @@ export default function StartPage() {
 
     try {
       const dataToSubmit = { ...formData };
+      if (dataToSubmit.department === 'Others') {
+        dataToSubmit.department = dataToSubmit.otherDepartment || 'Others';
+      }
       if (dataToSubmit.department === 'General') {
         dataToSubmit.position = 'General Candidate';
       }
@@ -149,13 +163,13 @@ export default function StartPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Department</label>
+            <label>Specialization</label>
             <select 
               required
               value={formData.department}
               onChange={e => setFormData({...formData, department: e.target.value})}
             >
-              <option value="" disabled>Select Department</option>
+              <option value="" disabled>Select Specialization</option>
               <optgroup label="IT Departments">
                 {IT_DEPARTMENTS.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -166,8 +180,22 @@ export default function StartPage() {
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
               </optgroup>
+              <option value="Others">Others</option>
             </select>
           </div>
+
+          {formData.department === 'Others' && (
+            <div className={styles.formGroup}>
+              <label>Please specify your Specialization</label>
+              <input 
+                type="text" 
+                required
+                value={formData.otherDepartment}
+                onChange={e => setFormData({...formData, otherDepartment: e.target.value})}
+                placeholder="Type your specialization"
+              />
+            </div>
+          )}
 
           {formData.department !== 'General' && (
             <div className={styles.formGroup}>
@@ -179,13 +207,13 @@ export default function StartPage() {
               >
                 <option value="" disabled>Select Position</option>
                 <optgroup label="IT Roles">
-                  {IT_ROLES.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
+                  {positions.filter(p => p.department_type === 'IT').map(pos => (
+                    <option key={pos.id} value={pos.position_name}>{pos.position_name}</option>
                   ))}
                 </optgroup>
                 <optgroup label="Non-IT Roles">
-                  {NON_IT_ROLES.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
+                  {positions.filter(p => p.department_type === 'Non-IT').map(pos => (
+                    <option key={pos.id} value={pos.position_name}>{pos.position_name}</option>
                   ))}
                 </optgroup>
               </select>
