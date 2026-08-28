@@ -217,6 +217,13 @@ export default function TestInterface() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const getDisplayCategory = (category: string) => {
+    if (category.toLowerCase().includes('coding')) {
+      return 'Logical Reasoning';
+    }
+    return category;
+  };
+
   if (securityLock) {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#fff', zIndex: 999999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', fontFamily: 'system-ui, sans-serif' }}>
@@ -293,7 +300,7 @@ export default function TestInterface() {
             <h3>Test Sections (10 Questions Each)</h3>
             <ul>
               {Array.from(new Set(questions.map(q => q.question.category))).map(category => (
-                <li key={category}>{category}</li>
+                <li key={category}>{getDisplayCategory(category)}</li>
               ))}
             </ul>
 
@@ -350,7 +357,7 @@ export default function TestInterface() {
         <div className={styles.sidebarScroll}>
           {Array.from(new Set(questions.map(q => q.question.category))).map(category => (
             <div key={category}>
-              <div className={styles.sectionHeader}>{category}</div>
+              <div className={styles.sectionHeader}>{getDisplayCategory(category)}</div>
               <div className={styles.grid}>
                 {questions.map((q, idx) => {
                   if (q.question.category !== category) return null;
@@ -392,7 +399,7 @@ export default function TestInterface() {
         <section className={styles.content}>
           <div className={styles.questionCard}>
             <div className={styles.questionCardHeader}>
-              <h2 className={styles.sectionTitle}>{currentQ.question.category} Section</h2>
+              <h2 className={styles.sectionTitle}>{getDisplayCategory(currentQ.question.category).toUpperCase()} SECTION</h2>
               <h3 className={styles.questionMeta}>Question {currentIdx + 1} of {questions.length}</h3>
             </div>
             <p className={styles.questionText}>{currentQ.question.question_text}</p>
