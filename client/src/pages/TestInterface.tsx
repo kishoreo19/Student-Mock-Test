@@ -219,7 +219,10 @@ export default function TestInterface() {
 
   const getDisplayCategory = (category: string) => {
     if (category.toLowerCase().includes('coding')) {
-      return 'Logical Reasoning';
+      const position = assessment?.position?.toLowerCase() || '';
+      if (position.includes('digital marketing')) {
+        return 'Logical Reasoning';
+      }
     }
     return category;
   };
