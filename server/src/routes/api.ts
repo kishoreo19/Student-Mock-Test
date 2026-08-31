@@ -492,6 +492,18 @@ router.post('/assessments/:assessmentId/submit', async (req: Request, res: Respo
     if (duration > 30 * 60) duration = 30 * 60;
   }
 
+  let pass_mark = 15;
+  if (assessment.position) {
+    const pos = await prisma.position.findUnique({
+      where: { position_name: assessment.position }
+    });
+    if (pos && pos.pass_mark !== undefined) {
+      pass_mark = pos.pass_mark;
+    }
+  }
+  
+  const result = score >= pass_mark ? 'Passed' : 'Failed';
+
   const updated = await prisma.assessment.update({
     where: { assessment_id: Number(assessmentId) },
     data: {
@@ -506,7 +518,8 @@ router.post('/assessments/:assessmentId/submit', async (req: Request, res: Respo
       grammar_score,
       coding_score,
       percentage,
-      duration
+      duration,
+      result
     }
   });
 
@@ -863,12 +876,17 @@ router.get('/admin/positions', async (req: Request, res: Response) => {
 // Admin - Create a position
 router.post('/admin/positions', async (req: Request, res: Response) => {
   try {
-    const { position_name, department_type, status } = req.body;
+    const { position_name, department_type, status, pass_mark } = req.body;
     if (!position_name || !department_type) {
       return res.status(400).json({ error: 'Position name and department type are required' });
     }
     const newPosition = await prisma.position.create({
-      data: { position_name, department_type, status: status || 'INACTIVE' }
+      data: { 
+        position_name, 
+        department_type, 
+        status: status || 'INACTIVE',
+        pass_mark: pass_mark !== undefined ? Number(pass_mark) : 15
+      }
     });
     res.json(newPosition);
   } catch (error: any) {
@@ -884,10 +902,15 @@ router.post('/admin/positions', async (req: Request, res: Response) => {
 router.put('/admin/positions/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { position_name, department_type, status } = req.body;
+    const { position_name, department_type, status, pass_mark } = req.body;
     const updated = await prisma.position.update({
       where: { id: Number(id) },
-      data: { position_name, department_type, status }
+      data: { 
+        position_name, 
+        department_type, 
+        status,
+        pass_mark: pass_mark !== undefined ? Number(pass_mark) : undefined
+      }
     });
     res.json(updated);
   } catch (error) {

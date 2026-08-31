@@ -72,6 +72,7 @@ model Assessment {
   candidate_rating Int?
   candidate_feedback String?
   assigned_set     Int       @default(1)
+  result           String?
 
   answers          CandidateAnswer[]
 
@@ -119,6 +120,7 @@ model Position {
   position_name   String   @unique
   department_type String
   status          String   @default("ACTIVE")
+  pass_mark       Int      @default(15)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 }

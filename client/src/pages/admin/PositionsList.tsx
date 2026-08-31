@@ -13,7 +13,8 @@ export default function PositionsList() {
     id: null as number | null,
     position_name: '',
     department_type: 'IT',
-    status: 'INACTIVE'
+    status: 'INACTIVE',
+    pass_mark: 15
   });
 
   const fetchPositions = async () => {
@@ -55,7 +56,8 @@ export default function PositionsList() {
       id: pos.id,
       position_name: pos.position_name,
       department_type: pos.department_type,
-      status: pos.status
+      status: pos.status,
+      pass_mark: pos.pass_mark || 15
     });
     setIsModalOpen(true);
   };
@@ -76,7 +78,8 @@ export default function PositionsList() {
       id: null,
       position_name: '',
       department_type: 'IT',
-      status: 'INACTIVE'
+      status: 'INACTIVE',
+      pass_mark: 15
     });
     setIsModalOpen(true);
   };
@@ -103,6 +106,7 @@ export default function PositionsList() {
             <tr>
               <th>Position Name</th>
               <th>Department Type</th>
+              <th>Pass Mark</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -117,6 +121,7 @@ export default function PositionsList() {
                       {pos.department_type}
                     </span>
                   </td>
+                  <td>{pos.pass_mark || 15}</td>
                   <td>
                     <span className={styles.badge} style={{ backgroundColor: pos.status === 'ACTIVE' ? '#dcfce7' : '#fee2e2', color: pos.status === 'ACTIVE' ? '#166534' : '#991b1b' }}>
                       {pos.status}
@@ -175,6 +180,17 @@ export default function PositionsList() {
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="INACTIVE">INACTIVE</option>
                 </select>
+              </div>
+              <div className={styles.inputGroup}>
+                <label>Pass Mark</label>
+                <input 
+                  type="number" 
+                  value={formData.pass_mark} 
+                  onChange={e => setFormData({ ...formData, pass_mark: Number(e.target.value) })}
+                  required
+                  min="0"
+                  className={styles.input}
+                />
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className={styles.secondaryButton} onClick={() => setIsModalOpen(false)}>Cancel</button>
