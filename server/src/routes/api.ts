@@ -440,19 +440,24 @@ router.patch('/assessments/:assessmentId/answer', async (req: Request, res: Resp
   const { assessmentId } = req.params;
   const { answer_id, selected_answer } = req.body;
 
-  const answer = await prisma.candidateAnswer.findUnique({ where: { answer_id: Number(answer_id) } });
-  if (!answer || answer.assessment_id !== Number(assessmentId)) {
-    return res.status(400).json({ error: 'Invalid answer reference' });
+  try {
+    const affectedRows = await prisma.$executeRaw`
+      UPDATE "CandidateAnswer"
+      SET "selected_answer" = ${selected_answer},
+          "answered_at" = NOW(),
+          "is_correct" = ("correct_answer" = ${selected_answer})
+      WHERE "answer_id" = ${Number(answer_id)} AND "assessment_id" = ${Number(assessmentId)}
+    `;
+
+    if (affectedRows === 0) {
+      return res.status(400).json({ error: 'Invalid answer reference' });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error in auto-save answer:', error);
+    res.status(500).json({ error: 'Failed to auto-save answer' });
   }
-
-  const is_correct = answer.correct_answer === selected_answer;
-
-  await prisma.candidateAnswer.update({
-    where: { answer_id: Number(answer_id) },
-    data: { selected_answer, is_correct, answered_at: new Date() }
-  });
-
-  res.json({ success: true });
 });
 
 // 4. Submit Assessment
