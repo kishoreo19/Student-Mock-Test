@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Users, FileText, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, FileText, CheckCircle, XCircle, Trash2, Download } from 'lucide-react';
 import styles from './Admin.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -58,6 +58,13 @@ export default function CollegeDetails() {
             ID: <span style={{color: '#0f172a'}}>{college.college_id}</span> {college.college_code ? `| Code: ` : ''}<span style={{color: '#0f172a'}}>{college.college_code}</span> | Location: <span style={{color: '#0f172a'}}>{college.location || 'N/A'}</span>
           </div>
         </div>
+        <button 
+          onClick={() => window.open(`${API_URL}/admin/export?college_id=${college.college_id}`, '_blank')}
+          className={styles.exportBtn}
+          style={{ cursor: 'pointer' }}
+        >
+          <Download size={18} /> Export to Excel
+        </button>
       </div>
 
       <div className={styles.statsGrid}>

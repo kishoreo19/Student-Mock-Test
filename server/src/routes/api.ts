@@ -800,6 +800,111 @@ router.get('/admin/export', async (req: Request, res: Response) => {
   res.end();
 });
 
+// 7.5 Admin - Export All Colleges (Separate Sheets)
+router.get('/admin/export-colleges', async (req: Request, res: Response) => {
+  try {
+    const colleges = await prisma.college.findMany({
+      include: {
+        candidates: {
+          include: { assessment: true },
+          orderBy: { created_at: 'desc' }
+        }
+      },
+      orderBy: { college_name: 'asc' }
+    });
+
+    const workbook = new exceljs.Workbook();
+
+    for (const college of colleges) {
+      // Clean sheet name: max 31 characters, and remove characters like \ / ? * : [ ]
+      let sheetName = college.college_name.replace(/[\\/?*:[\]]/g, '').trim();
+      if (sheetName.length > 30) {
+        sheetName = sheetName.substring(0, 30);
+      }
+      if (!sheetName) {
+        sheetName = `COL-${college.college_id.substring(0, 10)}`;
+      }
+
+      // Ensure sheet name is unique within workbook
+      let count = 1;
+      let uniqueSheetName = sheetName;
+      while (workbook.getWorksheet(uniqueSheetName)) {
+        const suffix = ` (${count})`;
+        uniqueSheetName = sheetName.substring(0, 31 - suffix.length) + suffix;
+        count++;
+      }
+
+      const worksheet = workbook.addWorksheet(uniqueSheetName);
+
+      worksheet.columns = [
+        { header: 'Candidate ID', key: 'candidate_id', width: 18 },
+        { header: 'Full Name', key: 'full_name', width: 25 },
+        { header: 'Email', key: 'email', width: 25 },
+        { header: 'Phone Number', key: 'phone', width: 18 },
+        { header: 'Degree', key: 'degree', width: 15 },
+        { header: 'Department', key: 'department', width: 20 },
+        { header: 'Position', key: 'position', width: 22 },
+        { header: 'Registration Date', key: 'created_at', width: 22 },
+        { header: 'Test Status', key: 'status', width: 15 },
+        { header: 'Score', key: 'score', width: 12 },
+        { header: 'Percentage', key: 'percentage', width: 12 },
+        { header: 'Duration (s)', key: 'duration', width: 15 },
+      ];
+
+      // Style header row
+      const headerRow = worksheet.getRow(1);
+      headerRow.height = 25;
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '4F46E5' } // Indigo color
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+      });
+
+      college.candidates.forEach((c) => {
+        const row = worksheet.addRow({
+          candidate_id: c.candidate_id,
+          full_name: c.full_name,
+          email: c.email,
+          phone: c.phone,
+          degree: c.degree || 'N/A',
+          department: c.department,
+          position: c.position,
+          created_at: c.created_at.toLocaleString(),
+          status: c.assessment?.status || 'NOT_STARTED',
+          score: c.assessment?.score || 0,
+          percentage: c.assessment?.percentage || 0,
+          duration: c.assessment?.duration || 0,
+        });
+
+        // Add some basic styling to data rows
+        row.height = 20;
+        row.eachCell((cell) => {
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        });
+      });
+    }
+
+    if (colleges.length === 0) {
+      const worksheet = workbook.addWorksheet('No Colleges');
+      worksheet.addRow(['No college data found in the database.']);
+    }
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Colleges_Candidates_Report.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error exporting colleges report:', error);
+    res.status(500).json({ error: 'Failed to export colleges report' });
+  }
+});
+
+
 // 8. Admin - Add Question
 router.post('/admin/questions', async (req: Request, res: Response) => {
   const question = await prisma.question.create({

@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Search, Building2, UserCircle, FileText, CheckCircle, Clock, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Search, Building2, UserCircle, FileText, CheckCircle, Clock, Trash2, Edit2, Download } from 'lucide-react';
 import styles from './Admin.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -114,12 +114,21 @@ export default function CollegesList() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>Colleges Management</h1>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--primary)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-        >
-          <Plus size={18} /> Add College
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={() => window.open(`${API_URL}/admin/export-colleges`, '_blank')}
+            className={styles.exportBtn}
+            style={{ cursor: 'pointer' }}
+          >
+            <Download size={18} /> Export All (Separate Sheets)
+          </button>
+          <button 
+            onClick={() => setShowAddModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--primary)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+          >
+            <Plus size={18} /> Add College
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
@@ -176,6 +185,13 @@ export default function CollegesList() {
                 >
                   View Details
                 </Link>
+                <button 
+                  onClick={() => window.open(`${API_URL}/admin/export?college_id=${college.college_id}`, '_blank')}
+                  style={{ background: 'rgba(52, 211, 153, 0.1)', color: 'var(--success)', border: 'none', padding: '0.75rem', borderRadius: '8px', cursor: 'pointer' }}
+                  title="Export to Excel"
+                >
+                  <Download size={18} />
+                </button>
                 <button 
                   onClick={() => openEditModal(college)}
                   style={{ background: 'rgba(79, 70, 229, 0.1)', color: 'var(--primary)', border: 'none', padding: '0.75rem', borderRadius: '8px', cursor: 'pointer' }}
