@@ -237,9 +237,19 @@ export default function GlobalCandidates() {
             </select>
             <select value={filters.score} onChange={e => setFilters({...filters, score: e.target.value})}>
               <option value="">All Marks</option>
-              {Array.from({ length: 31 }, (_, i) => i).map(mark => (
-                <option key={mark} value={mark}>{mark} Mark{mark !== 1 ? 's' : ''}</option>
-              ))}
+              <optgroup label="Ranges">
+                <option value="range-25-30">25 to 30 Marks</option>
+                <option value="range-20-24">20 to 24 Marks</option>
+                <option value="range-15-19">15 to 19 Marks</option>
+                <option value="range-10-14">10 to 14 Marks</option>
+                <option value="range-5-9">5 to 9 Marks</option>
+                <option value="range-0-4">0 to 4 Marks</option>
+              </optgroup>
+              <optgroup label="Individual Marks">
+                {Array.from({ length: 31 }, (_, i) => 30 - i).map(mark => (
+                  <option key={mark} value={mark}>{mark} Mark{mark !== 1 ? 's' : ''}</option>
+                ))}
+              </optgroup>
             </select>
           </div>
         </div>

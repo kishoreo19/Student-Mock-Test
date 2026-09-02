@@ -679,7 +679,16 @@ router.get('/admin/candidates', async (req: Request, res: Response) => {
     where.assessment = {};
     if (status) where.assessment.status = status as string;
     if (req.query.score) {
-      where.assessment.score = Number(req.query.score);
+      const scoreQuery = req.query.score as string;
+      if (scoreQuery.startsWith('range-')) {
+        const parts = scoreQuery.replace('range-', '').split('-');
+        where.assessment.score = {
+          gte: Number(parts[0]),
+          lte: Number(parts[1])
+        };
+      } else {
+        where.assessment.score = Number(scoreQuery);
+      }
     }
   }
 
@@ -735,7 +744,16 @@ router.get('/admin/export', async (req: Request, res: Response) => {
     where.assessment = {};
     if (status) where.assessment.status = status as string;
     if (req.query.score) {
-      where.assessment.score = Number(req.query.score);
+      const scoreQuery = req.query.score as string;
+      if (scoreQuery.startsWith('range-')) {
+        const parts = scoreQuery.replace('range-', '').split('-');
+        where.assessment.score = {
+          gte: Number(parts[0]),
+          lte: Number(parts[1])
+        };
+      } else {
+        where.assessment.score = Number(scoreQuery);
+      }
     }
   }
 
