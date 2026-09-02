@@ -679,15 +679,7 @@ router.get('/admin/candidates', async (req: Request, res: Response) => {
     where.assessment = {};
     if (status) where.assessment.status = status as string;
     if (req.query.score) {
-      const scoreVal = Number(req.query.score);
-      if (scoreVal === 0) {
-        where.assessment.score = 0;
-      } else {
-        where.assessment.score = {
-          gte: scoreVal - 4,
-          lte: scoreVal
-        };
-      }
+      where.assessment.score = Number(req.query.score);
     }
   }
 
@@ -743,15 +735,7 @@ router.get('/admin/export', async (req: Request, res: Response) => {
     where.assessment = {};
     if (status) where.assessment.status = status as string;
     if (req.query.score) {
-      const scoreVal = Number(req.query.score);
-      if (scoreVal === 0) {
-        where.assessment.score = 0;
-      } else {
-        where.assessment.score = {
-          gte: scoreVal - 4,
-          lte: scoreVal
-        };
-      }
+      where.assessment.score = Number(req.query.score);
     }
   }
 
