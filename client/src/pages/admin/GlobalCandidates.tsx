@@ -238,6 +238,7 @@ export default function GlobalCandidates() {
             <select value={filters.score} onChange={e => setFilters({...filters, score: e.target.value})}>
               <option value="">All Marks</option>
               <optgroup label="Ranges">
+                <option value="range-28-30">28 to 30 Marks</option>
                 <option value="range-25-30">25 to 30 Marks</option>
                 <option value="range-20-24">20 to 24 Marks</option>
                 <option value="range-15-19">15 to 19 Marks</option>
