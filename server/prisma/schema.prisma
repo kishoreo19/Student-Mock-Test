@@ -18,6 +18,8 @@ model College {
   contact_email   String?
   contact_phone   String?
   status          String      @default("ACTIVE")
+  active_batch    String?     @default("Batch 1")
+  active_date     String?
   created_at      DateTime    @default(now())
   updated_at      DateTime    @updatedAt
 
@@ -38,6 +40,8 @@ model Candidate {
   department          String
   position            String
   degree              String?
+  batch               String?     @default("Batch 1")
+  test_date           String?
   created_at          DateTime    @default(now())
   last_login          DateTime?
   verification_status String      @default("PENDING")

@@ -23,9 +23,13 @@ export default function GlobalCandidates() {
     search: '',
     department: '',
     position: '',
-    status: '',
     score: '',
-    college_id: ''
+    college_id: '',
+    date_filter: '',
+    custom_start: '',
+    custom_end: '',
+    batch: '',
+    test_date: ''
   });
 
   const [stats, setStats] = useState({
@@ -65,6 +69,10 @@ export default function GlobalCandidates() {
       if (filters.status) params.append('status', filters.status);
       if (filters.score) params.append('score', filters.score);
       if (filters.college_id) params.append('college_id', filters.college_id);
+      if (filters.date_filter) params.append('date_filter', filters.date_filter);
+      if (filters.custom_start) params.append('custom_start', filters.custom_start);
+      if (filters.custom_end) params.append('custom_end', filters.custom_end);
+      if (filters.batch) params.append('batch', filters.batch);
 
       const res = await axios.get(`${API_URL}/admin/candidates?${params.toString()}`);
       setCandidates(res.data);
@@ -106,6 +114,11 @@ export default function GlobalCandidates() {
     if (filters.status) params.append('status', filters.status);
     if (filters.score) params.append('score', filters.score);
     if (filters.college_id) params.append('college_id', filters.college_id);
+    if (filters.date_filter) params.append('date_filter', filters.date_filter);
+    if (filters.custom_start) params.append('custom_start', filters.custom_start);
+    if (filters.custom_end) params.append('custom_end', filters.custom_end);
+    if (filters.batch) params.append('batch', filters.batch);
+    if (filters.test_date) params.append('test_date', filters.test_date);
 
     window.open(`${API_URL}/admin/export?${params.toString()}`, '_blank');
   };
@@ -235,10 +248,39 @@ export default function GlobalCandidates() {
               <option value="TERMINATED">Terminated</option>
               <option value="CLOSED">Closed</option>
             </select>
+            <select value={filters.batch} onChange={e => setFilters({...filters, batch: e.target.value})}>
+              <option value="">All Batches</option>
+              {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                <option key={n} value={`Batch ${n}`}>Batch {n}</option>
+              ))}
+            </select>
+            <input 
+              type="date"
+              value={filters.test_date}
+              onChange={e => setFilters({...filters, test_date: e.target.value})}
+              title="Test Date"
+            />
+            <select value={filters.date_filter} onChange={e => setFilters({...filters, date_filter: e.target.value})}>
+              <option value="">All Time</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="this_week">This Week</option>
+              <option value="this_month">This Month</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            {filters.date_filter === 'custom' && (
+              <>
+                <input type="datetime-local" value={filters.custom_start} onChange={e => setFilters({...filters, custom_start: e.target.value})} style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem' }} />
+                <span style={{color: 'var(--text-muted)', fontSize: '0.9rem', alignSelf: 'center'}}>to</span>
+                <input type="datetime-local" value={filters.custom_end} onChange={e => setFilters({...filters, custom_end: e.target.value})} style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.85rem' }} />
+              </>
+            )}
             <select value={filters.score} onChange={e => setFilters({...filters, score: e.target.value})}>
               <option value="">All Marks</option>
               <optgroup label="Ranges">
                 <option value="range-28-30">28 to 30 Marks</option>
+                <option value="range-27-30">27 to 30 Marks</option>
+                <option value="range-26-30">26 to 30 Marks</option>
                 <option value="range-25-30">25 to 30 Marks</option>
                 <option value="range-20-24">20 to 24 Marks</option>
                 <option value="range-15-19">15 to 19 Marks</option>

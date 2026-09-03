@@ -170,7 +170,7 @@ router.delete('/colleges/:collegeId', async (req: Request, res: Response) => {
 router.put('/colleges/:collegeId', async (req: Request, res: Response) => {
   try {
     const { collegeId } = req.params;
-    const { college_name, college_code, location, contact_person, contact_email, contact_phone } = req.body;
+    const { college_name, college_code, location, contact_person, contact_email, contact_phone, active_batch, active_date } = req.body;
     
     if (!college_name) return res.status(400).json({ error: 'College Name is required' });
 
@@ -182,7 +182,9 @@ router.put('/colleges/:collegeId', async (req: Request, res: Response) => {
         location,
         contact_person,
         contact_email,
-        contact_phone
+        contact_phone,
+        active_batch,
+        active_date
       }
     });
     
@@ -289,6 +291,12 @@ router.post('/candidates/register', async (req: Request, res: Response) => {
       });
     }
 
+    const college = await prisma.college.findUnique({
+      where: { college_id }
+    });
+    const active_batch = college?.active_batch || "Batch 1";
+    const active_date = college?.active_date || new Date().toISOString().split('T')[0];
+
     // Concurrency safe candidate creation
     const tempId = `TEMP-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
     candidate = await prisma.candidate.create({
@@ -302,7 +310,9 @@ router.post('/candidates/register', async (req: Request, res: Response) => {
         department,
         position,
         degree,
-        college_id
+        college_id,
+        batch: active_batch,
+        test_date: active_date
       },
       include: { assessment: true }
     });
@@ -647,9 +657,34 @@ router.post('/assessments/:assessmentId/candidate-feedback', async (req: Request
 
 // 6. Admin - List Candidates
 router.get('/admin/candidates', async (req: Request, res: Response) => {
-  const { search, department, position, status, college_id } = req.query;
+  const { search, department, position, status, college_id, date_filter, custom_start, custom_end, batch, test_date } = req.query;
 
   const where: any = {};
+  if (batch) where.batch = batch as string;
+  if (test_date) where.test_date = test_date as string;
+  
+  if (date_filter) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date_filter === 'today') {
+      where.created_at = { gte: today };
+    } else if (date_filter === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      where.created_at = { gte: yesterday, lt: today };
+    } else if (date_filter === 'this_week') {
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      where.created_at = { gte: startOfWeek };
+    } else if (date_filter === 'this_month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      where.created_at = { gte: startOfMonth };
+    } else if (date_filter === 'custom') {
+      where.created_at = {};
+      if (custom_start) where.created_at.gte = new Date(custom_start as string);
+      if (custom_end) where.created_at.lte = new Date(custom_end as string);
+    }
+  }
   
   if (search) {
     where.OR = [
@@ -721,9 +756,34 @@ router.get('/admin/candidates/:id', async (req: Request, res: Response) => {
 
 // 7. Admin - Export Excel
 router.get('/admin/export', async (req: Request, res: Response) => {
-  const { department, position, status, college_id } = req.query;
+  const { department, position, status, college_id, date_filter, custom_start, custom_end, batch, test_date } = req.query;
 
   const where: any = {};
+  if (batch) where.batch = batch as string;
+  if (test_date) where.test_date = test_date as string;
+  
+  if (date_filter) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date_filter === 'today') {
+      where.created_at = { gte: today };
+    } else if (date_filter === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      where.created_at = { gte: yesterday, lt: today };
+    } else if (date_filter === 'this_week') {
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      where.created_at = { gte: startOfWeek };
+    } else if (date_filter === 'this_month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      where.created_at = { gte: startOfMonth };
+    } else if (date_filter === 'custom') {
+      where.created_at = {};
+      if (custom_start) where.created_at.gte = new Date(custom_start as string);
+      if (custom_end) where.created_at.lte = new Date(custom_end as string);
+    }
+  }
   
   if (department === 'IT') {
     where.position = position ? (position as string) : { in: IT_ROLES };
