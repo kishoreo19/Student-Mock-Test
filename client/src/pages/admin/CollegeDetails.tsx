@@ -36,7 +36,12 @@ export default function CollegeDetails() {
     setActiveDate(newDate);
     try {
       await axios.put(`${API_URL}/colleges/${collegeId}`, {
-        ...college,
+        college_name: college.college_name,
+        college_code: college.college_code,
+        location: college.location,
+        contact_person: college.contact_person,
+        contact_email: college.contact_email,
+        contact_phone: college.contact_phone,
         active_batch: newBatch,
         active_date: newDate
       });
