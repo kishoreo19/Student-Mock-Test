@@ -29,7 +29,8 @@ export default function GlobalCandidates() {
     custom_start: '',
     custom_end: '',
     batch: '',
-    test_date: ''
+    test_date: '',
+    status: ''
   });
 
   const [stats, setStats] = useState({
