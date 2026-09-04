@@ -58,6 +58,33 @@ const fetchPositionQuestions = async (position: string, department: string, setN
 
 
 // ===============================
+// SYSTEM SETTINGS ENDPOINTS
+// ===============================
+
+router.get('/settings/test-active', async (req: Request, res: Response) => {
+  try {
+    const setting = await prisma.systemSetting.findUnique({ where: { key: 'TEST_ACTIVE' } });
+    res.json({ test_active: setting ? setting.value === 'true' : true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+router.post('/settings/test-active', async (req: Request, res: Response) => {
+  try {
+    const { test_active } = req.body;
+    await prisma.systemSetting.upsert({
+      where: { key: 'TEST_ACTIVE' },
+      update: { value: String(test_active) },
+      create: { key: 'TEST_ACTIVE', value: String(test_active) }
+    });
+    res.json({ success: true, test_active });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// ===============================
 // COLLEGE ENDPOINTS
 // ===============================
 
@@ -274,6 +301,13 @@ router.post('/candidates/register', async (req: Request, res: Response) => {
   const normalized_phone = phone.replace(/\D/g, '');
 
   try {
+    const testActiveSetting = await prisma.systemSetting.findUnique({ where: { key: 'TEST_ACTIVE' } });
+    if (testActiveSetting && testActiveSetting.value === 'false') {
+      return res.status(403).json({ 
+        error: 'TEST_INACTIVE', 
+        message: 'The test is currently disabled by the administrator.' 
+      });
+    }
     let candidate = await prisma.candidate.findFirst({
       where: {
         OR: [

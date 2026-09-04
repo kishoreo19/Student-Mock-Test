@@ -23,7 +23,6 @@ export default function GlobalCandidates() {
     search: '',
     department: '',
     position: '',
-    status: '',
     score: '',
     college_id: '',
     date_filter: '',

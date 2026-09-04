@@ -129,3 +129,9 @@ model Position {
   updated_at      DateTime @updatedAt
 }
 
+model SystemSetting {
+  id    Int    @id @default(1)
+  key   String @unique
+  value String
+}
+
