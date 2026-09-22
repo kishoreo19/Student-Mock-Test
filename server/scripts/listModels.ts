@@ -6,7 +6,7 @@ async function run() {
   try {
     const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
     const response = await ai.models.list();
-    for (const m of response) {
+    for await (const m of response) {
       console.log(m.name);
     }
   } catch(e) {
