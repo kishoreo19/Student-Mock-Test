@@ -2,7 +2,11 @@ import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './StartPage.module.css';
+<<<<<<< HEAD
 import { ENGINEERING_DEPARTMENTS, ARTS_AND_SCIENCE_DEPARTMENTS, DEGREES } from '../data';
+=======
+import { IT_DEPARTMENTS, NON_IT_DEPARTMENTS, DEGREES } from '../data';
+>>>>>>> 217f36632b7079d602ee1de3c1a1e4e9d89ac163
 import logo from '../assets/logo_new.jpg';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -170,6 +174,7 @@ export default function StartPage() {
               onChange={e => setFormData({...formData, department: e.target.value})}
             >
               <option value="" disabled>Select Specialization</option>
+<<<<<<< HEAD
               <optgroup label="Engineering">
                 {ENGINEERING_DEPARTMENTS.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -177,6 +182,15 @@ export default function StartPage() {
               </optgroup>
               <optgroup label="Arts and Science">
                 {ARTS_AND_SCIENCE_DEPARTMENTS.map(dept => (
+=======
+              <optgroup label="IT Departments">
+                {IT_DEPARTMENTS.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Non-IT Departments">
+                {NON_IT_DEPARTMENTS.map(dept => (
+>>>>>>> 217f36632b7079d602ee1de3c1a1e4e9d89ac163
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
               </optgroup>
